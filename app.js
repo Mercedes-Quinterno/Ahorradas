@@ -443,7 +443,6 @@ const inicializarBalance = () => {
   $("#filtro-fecha").addEventListener("change", filtrarOperaciones)
   $("#select-filtro-orden").addEventListener("change", filtrarOperaciones)
 
-  //$('#toggle-filtros').addEventListener('click', alternarFiltros)
 }
 
 const inicializar = () => {

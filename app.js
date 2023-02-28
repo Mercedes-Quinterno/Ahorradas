@@ -161,155 +161,303 @@ const cargarDatosOperacion = (operacion) => {
 /* Categorias */
 
 const actualizarCategorias = () => {
-    actualizarSelectoresCategorias()
-    actualizarListaCategorias()
+  actualizarSelectoresCategorias()
+  actualizarListaCategorias()
+}
+
+const actualizarSelectoresCategorias = () => {
+	const selects = $$('.categorias-select')
+
+	selects.forEach((select) => {
+		const esFiltro = select.classList.contains('filtro-categoria');
+		select.innerHTML = esFiltro ? '<option value="todas">Todas</option>' : ''
+		const categorias = obtenerCategorias();
+		categorias.forEach((categoria) => {
+			select.innerHTML += `<option value="${categoria.Id}">${categoria.Nombre}</option>`
+		})
+	})
+}
+
+const actualizarListaCategorias = () => {
+	const tabla = $('#tabla-categorias');
+	tabla.innerHTML = '';
+
+	const categorias = obtenerCategorias();
+	categorias.forEach((categoria) => {
+		const itemCategoria = document.createElement('tr')
+		itemCategoria.innerHTML += `
+		  <th>${categoria.Nombre}</th>
+		  <td><div class="field is-grouped">
+			  <p class="control"><button class="editar-categoria button is-info">Editar</button></p>
+			  <p class="control"><button class="eliminar-categoria button is-danger">Eliminar</button></p>
+			</div></td> 
+		`
+		
+		const editarAccion = itemCategoria.querySelector('.editar-categoria')
+		const eliminarAccion = itemCategoria.querySelector('.eliminar-categoria')
+
+		editarAccion.onclick = () => {
+		  cargarDatosCategoria(categoria)
+		  mostrarSeccion('editar-categoria')
+		}
+
+		eliminarAccion.onclick = () => {
+			const categorias = eliminarCategoria(categoria.Id, obtenerCategorias());
+			const operaciones = eliminarOperacionesPorCategoria(categoria.Id, obtenerOperaciones());
+			actualizarDatos({categorias, operaciones});
+		}
+		
+		tabla.append(itemCategoria);
+	})
+}
+
+const cargarDatosCategoria = (categoria) => {
+	const nombreCategoria = $("#editar-nombre-categoria")
+	nombreCategoria.value = categoria.Nombre;
+	nombreCategoria.setAttribute("categoria", categoria.Id);
+}
+
+/* Balance */
+
+const actualizarBalance = (operaciones = obtenerOperaciones()) => {
+  const { ganancias, gastos, balance } = obtenerBalance(operaciones)
+  $("#ganancias").innerHTML = `+$${Math.abs(ganancias)}`
+  $("#gastos").innerHTML = `-$${Math.abs(gastos)}`
+
+  $("#balance").classList.remove("has-text-danger", "has-text-success")
+  let operador = ""
+
+  if (balance > 0) {
+    $('#balance').classList.add("has-text-success")
+    operador = '+'
+  } else if (balance < 0) {
+    $("#balance").classList.add("has-text-danger")
+    operador = "-"
   }
-  
-  const actualizarSelectoresCategorias = () => {
-      const selects = $$('.categorias-select')
-  
-      selects.forEach((select) => {
-          const esFiltro = select.classList.contains('filtro-categoria');
-          select.innerHTML = esFiltro ? '<option value="todas">Todas</option>' : ''
-          const categorias = obtenerCategorias();
-          categorias.forEach((categoria) => {
-              select.innerHTML += `<option value="${categoria.Id}">${categoria.Nombre}</option>`
-          })
-      })
+
+  $("#balance").innerHTML = `${operador}$${Math.abs(balance)}`
+}
+
+/* Reportes */
+
+const actualizarReportes = () => {
+	const operaciones = obtenerOperaciones();
+	const categorias = obtenerCategorias();
+	const suficientesOperaciones = operaciones.length > 1;
+	if (suficientesOperaciones) {
+		$("#con-reportes").classList.remove("is-hidden");
+		$("#sin-reportes").classList.add("is-hidden");
+	} else {
+		$("#sin-reportes").classList.remove("is-hidden");
+		$("#con-reportes").classList.add("is-hidden");
+	}
+	
+	const {
+		categoriaTopGanancias,
+		categoriaTopGastos,
+		categoriaTopBalance,
+	} = obtenerResumen(operaciones, categorias);
+	
+	$("#categoria-top-ganancias-nombre").innerHTML = categoriaTopGanancias.categoria.Nombre;
+	$("#categoria-top-ganancias-monto").innerHTML = formatearMonto(categoriaTopGanancias.balance.ganancias);
+	$("#categoria-top-ganancias-monto").classList.add(colorParaMonto(categoriaTopGanancias.balance.ganancias));
+
+	$("#categoria-top-gastos-nombre").innerHTML = categoriaTopGastos.categoria.Nombre;
+	$("#categoria-top-gastos-monto").innerHTML = formatearMonto(categoriaTopGastos.balance.gastos * -1);
+	$("#categoria-top-gastos-monto").classList.add(colorParaMonto(categoriaTopGastos.balance.gastos * -1));
+	
+	$("#categoria-top-balance-nombre").innerHTML = categoriaTopBalance.categoria.Nombre;
+	$("#categoria-top-balance-monto").innerHTML = formatearMonto(categoriaTopBalance.balance.balance);
+	$("#categoria-top-balance-monto").classList.add(colorParaMonto(categoriaTopBalance.balance.balance));
+	
+	const totalesPorCategorias = obetenerTotales(operaciones, categorias);
+	
+	const tabla = $("#tabla-totales-por-categorias");
+	totalesPorCategorias.forEach((totalesPorCategoria) => {
+		const itemTotal = document.createElement('tr')
+
+		const textoGanancias = formatearMonto(totalesPorCategoria.balance.ganancias);
+		const textoGastos = formatearMonto(totalesPorCategoria.balance.gastos * -1);
+		const textoBalance = formatearMonto(totalesPorCategoria.balance.balance);
+		const colorGanancias = colorParaMonto(totalesPorCategoria.balance.ganancias);
+		const colorGastos = colorParaMonto(totalesPorCategoria.balance.gastos * -1);
+		const colorBalance = colorParaMonto(totalesPorCategoria.balance.balance);
+		
+		itemTotal.innerHTML += `
+		  <th>${totalesPorCategoria.categoria.Nombre}</th>
+		  <td class="${colorGanancias}">${textoGanancias}</td>
+		  <td class="${colorGastos}">${textoGastos}</td>
+		  <td class="${colorBalance}">${textoBalance}</td>
+		`
+		
+		tabla.append(itemTotal);
+	});
+}
+
+const formatearMonto = (monto) => {
+	if (monto > 0) {
+		return `+${monto}`;
+	} else {
+		return monto;
+	}
+}
+
+const colorParaMonto = (monto) => {
+	if (monto > 0) {
+		return "has-text-success";
+	} else if (monto === 0) {
+		return "has-text-black";
+	} else {
+		return "has-text-danger";
+	}
+}
+
+
+/* Eventos */
+
+function mostrarSeccion(nombre){
+	$$("section").forEach((section) => section.classList.add("is-hidden"));
+		
+	$(`#seccion-${nombre}`).classList.remove("is-hidden");
+}
+
+/* */
+
+const inicializarDatos = () => {
+  if (obtenerDatos()) {
+    mostrarDatos()
+  } else {
+    const categorias = [
+      "Comida",
+      "Servicios",
+      "Salidas",
+      "Educación",
+      "Transporte",
+      "Trabajo",
+    ].map((categoria) => crearCategoria(categoria))
+
+    actualizarDatos({
+      operaciones: [],
+      categorias,
+    })
   }
-  
-  const actualizarListaCategorias = () => {
-      const tabla = $('#tabla-categorias');
-      tabla.innerHTML = '';
-  
-      const categorias = obtenerCategorias();
-      categorias.forEach((categoria) => {
-          const itemCategoria = document.createElement('tr')
-          itemCategoria.innerHTML += `
-            <th>${categoria.Nombre}</th>
-            <td><div class="field is-grouped">
-                <p class="control"><button class="editar-categoria button is-info">Editar</button></p>
-                <p class="control"><button class="eliminar-categoria button is-danger">Eliminar</button></p>
-              </div></td> 
-          `
-          
-          const editarAccion = itemCategoria.querySelector('.editar-categoria')
-          const eliminarAccion = itemCategoria.querySelector('.eliminar-categoria')
-  
-          editarAccion.onclick = () => {
-            cargarDatosCategoria(categoria)
-            mostrarSeccion('editar-categoria')
-          }
-  
-          eliminarAccion.onclick = () => {
-              const categorias = eliminarCategoria(categoria.Id, obtenerCategorias());
-              const operaciones = eliminarOperacionesPorCategoria(categoria.Id, obtenerOperaciones());
-              actualizarDatos({categorias, operaciones});
-          }
-          
-          tabla.append(itemCategoria);
-      })
+}
+
+const inicializarSecciones = () => {
+	const $form = $("#form-submit");
+    
+    const $containerOperaciones = $("#container-operaciones")
+	
+	$("#agregar-nueva-operacion").addEventListener("click", (event) => {
+		mostrarSeccion("agregar-operacion")
+	})
+	
+	$("#agregar-nueva-operacion").addEventListener("click", (event) => {
+		mostrarSeccion("agregar-operacion")
+	})
+	
+	$("#ver-home").addEventListener("click", (event) => {
+		mostrarSeccion("balance")
+	})
+	
+	$("#ver-balance").addEventListener("click", (event) => {
+		mostrarSeccion("balance")
+	})
+	
+	$("#ver-categorias").addEventListener("click", (event) => {
+		mostrarSeccion("categorias")
+	})
+	
+	$("#ver-reportes").addEventListener("click", (event) => {
+		mostrarSeccion("reportes")
+	})
+}
+
+const inicializarSeccionOperaciones = () => {
+  $("#agregar-operacion").addEventListener("click", (event) => {
+		event.preventDefault();
+		const operaciones = obtenerOperaciones();
+		
+		const titulo = $("#input-text").value;
+		const monto = Number($("#input-number").value);
+		const tipo = $("#input-types").value;
+		const categoria = $("#select-categoria").value;
+		const fecha = new Date($("#agregar-fecha-operacion").value.replace(/-/g, "/"));
+		
+		const nuevaOperacion = crearOperacion(titulo, monto, tipo, categoria, fecha)
+		const operacionesActualizadas = agregarOperacion(nuevaOperacion, operaciones);
+		
+		actualizarDatos({operaciones: operacionesActualizadas});
+		
+		mostrarSeccion("balance");
+	})
+  $("#cancelar-agregar-operacion").addEventListener("click", () =>
+    mostrarSeccion("balance")
+  )
+  $("#editar-operacion").addEventListener("click", (event) => {
+		const idOperacion = $("#editar-titulo-operacion").getAttribute("operacion");
+		const tituloOperacion = $("#editar-titulo-operacion").value;
+		const montoOperacion = $("#editar-monto-operacion").value;
+		const tipoOperacion = $("#editar-tipo-operacion").value;
+		const categoriaOperacion = $("#editar-categoria-operacion").value;
+		const fechaOperacion = $("#editar-fecha-operacion").value.replace(/-/g, "/");
+		
+		const operacionActualizada = {
+			Id: idOperacion,
+			Titulo: tituloOperacion,
+			Monto: montoOperacion,
+			Tipo: tipoOperacion,
+			Categoria: categoriaOperacion,
+			Fecha: new Date(fechaOperacion),
+		}
+		
+		const operaciones = reemplazarOperacion(operacionActualizada, obtenerOperaciones());
+		actualizarDatos({operaciones});
+		mostrarSeccion("balance");
+	})
+  $("#cancelar-editar-operacion").addEventListener("click", () =>
+    mostrarSeccion("balance")
+  )
+}
+
+const inicializarSeccionCategorias = () => {
+	$("#crear-categoria").addEventListener("click", () => {
+		const nombreCategoria = $("#crear-nombre-categoria").value;
+		const categoria = crearCategoria(nombreCategoria);
+		const categorias = agregarCategoria(categoria, obtenerCategorias());
+		actualizarDatos({categorias});
+	})
+	
+	$("#editar-categoria").addEventListener("click", () => {
+		const nombreCategoria = $("#editar-nombre-categoria").value;
+		const idCategoria = $("#editar-nombre-categoria").getAttribute("categoria");
+		const categorias = reemplazarCategoria({Id: idCategoria, Nombre: nombreCategoria}, obtenerCategorias());
+		actualizarDatos({categorias});
+		mostrarSeccion("categorias");
+	})
+}
+
+const inicializarBalance = () => {
+  $("#select-filtro-tipos").addEventListener("change", filtrarOperaciones)
+  $("#select-filtro-categoria").addEventListener("change", filtrarOperaciones)
+  $("#filtro-fecha").addEventListener("change", filtrarOperaciones)
+  $("#select-filtro-orden").addEventListener("change", filtrarOperaciones)
+
+  //$('#toggle-filtros').addEventListener('click', alternarFiltros)
+}
+
+const inicializar = () => {
+  for (let input of $$('input[type="date"]')) {
+    input.valueAsDate = new Date()
   }
-  
-  const cargarDatosCategoria = (categoria) => {
-      const nombreCategoria = $("#editar-nombre-categoria")
-      nombreCategoria.value = categoria.Nombre;
-      nombreCategoria.setAttribute("categoria", categoria.Id);
-  }
-  
-  /* Balance */
-  
-  const actualizarBalance = (operaciones = obtenerOperaciones()) => {
-    const { ganancias, gastos, balance } = obtenerBalance(operaciones)
-    $("#ganancias").innerHTML = `+$${Math.abs(ganancias)}`
-    $("#gastos").innerHTML = `-$${Math.abs(gastos)}`
-  
-    $("#balance").classList.remove("has-text-danger", "has-text-success")
-    let operador = ""
-  
-    if (balance > 0) {
-      $('#balance').classList.add("has-text-success")
-      operador = '+'
-    } else if (balance < 0) {
-      $("#balance").classList.add("has-text-danger")
-      operador = "-"
-    }
-  
-    $("#balance").innerHTML = `${operador}$${Math.abs(balance)}`
-  }
-  
-  /* Reportes */
-  
-  const actualizarReportes = () => {
-      const operaciones = obtenerOperaciones();
-      const categorias = obtenerCategorias();
-      const suficientesOperaciones = operaciones.length > 1;
-      if (suficientesOperaciones) {
-          $("#con-reportes").classList.remove("is-hidden");
-          $("#sin-reportes").classList.add("is-hidden");
-      } else {
-          $("#sin-reportes").classList.remove("is-hidden");
-          $("#con-reportes").classList.add("is-hidden");
-      }
-      
-      const {
-          categoriaTopGanancias,
-          categoriaTopGastos,
-          categoriaTopBalance,
-      } = obtenerResumen(operaciones, categorias);
-      
-      $("#categoria-top-ganancias-nombre").innerHTML = categoriaTopGanancias.categoria.Nombre;
-      $("#categoria-top-ganancias-monto").innerHTML = formatearMonto(categoriaTopGanancias.balance.ganancias);
-      $("#categoria-top-ganancias-monto").classList.add(colorParaMonto(categoriaTopGanancias.balance.ganancias));
-  
-      $("#categoria-top-gastos-nombre").innerHTML = categoriaTopGastos.categoria.Nombre;
-      $("#categoria-top-gastos-monto").innerHTML = formatearMonto(categoriaTopGastos.balance.gastos * -1);
-      $("#categoria-top-gastos-monto").classList.add(colorParaMonto(categoriaTopGastos.balance.gastos * -1));
-      
-      $("#categoria-top-balance-nombre").innerHTML = categoriaTopBalance.categoria.Nombre;
-      $("#categoria-top-balance-monto").innerHTML = formatearMonto(categoriaTopBalance.balance.balance);
-      $("#categoria-top-balance-monto").classList.add(colorParaMonto(categoriaTopBalance.balance.balance));
-      
-      const totalesPorCategorias = obetenerTotales(operaciones, categorias);
-      
-      const tabla = $("#tabla-totales-por-categorias");
-      totalesPorCategorias.forEach((totalesPorCategoria) => {
-          const itemTotal = document.createElement('tr')
-  
-          const textoGanancias = formatearMonto(totalesPorCategoria.balance.ganancias);
-          const textoGastos = formatearMonto(totalesPorCategoria.balance.gastos * -1);
-          const textoBalance = formatearMonto(totalesPorCategoria.balance.balance);
-          const colorGanancias = colorParaMonto(totalesPorCategoria.balance.ganancias);
-          const colorGastos = colorParaMonto(totalesPorCategoria.balance.gastos * -1);
-          const colorBalance = colorParaMonto(totalesPorCategoria.balance.balance);
-          
-          itemTotal.innerHTML += `
-            <th>${totalesPorCategoria.categoria.Nombre}</th>
-            <td class="${colorGanancias}">${textoGanancias}</td>
-            <td class="${colorGastos}">${textoGastos}</td>
-            <td class="${colorBalance}">${textoBalance}</td>
-          `
-          
-          tabla.append(itemTotal);
-      });
-  }
-  
-  const formatearMonto = (monto) => {
-      if (monto > 0) {
-          return `+${monto}`;
-      } else {
-          return monto;
-      }
-  }
-  
-  const colorParaMonto = (monto) => {
-      if (monto > 0) {
-          return "has-text-success";
-      } else if (monto === 0) {
-          return "has-text-black";
-      } else {
-          return "has-text-danger";
-      }
-  }
-  
-  
+
+  inicializarDatos()
+  inicializarSecciones()
+
+  inicializarSeccionOperaciones()
+  inicializarSeccionCategorias()
+
+  inicializarBalance()
+}
+
+window.onload = inicializar

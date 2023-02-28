@@ -1,0 +1,24 @@
+/*Estilos Parte principal*/
+html {
+	overflow-y: auto;
+}
+body{
+    background-color:whitesmoke;
+    height: 100vh;
+	overflow-y: auto;
+}
+.header-container{
+    display: flex;
+    justify-content: space-between;
+}
+.balance{
+    height: 30vh;
+}
+.box-central-cabecera{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+#nueva-operacion{
+    width: 150px;
+}

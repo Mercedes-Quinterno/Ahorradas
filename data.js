@@ -66,4 +66,26 @@ const OPERACIONES = {
       return [...nuevasOperaciones, nuevaOperacion];
   }
   
-  
+
+/* Categorias */
+
+const agregarCategoria = (categoria, categorias) => {
+	return [...categorias, categoria];
+}
+
+const obtenerCategoria = (idCategoria, categorias) => {
+  return categorias.find((categoria) => categoria.Id === idCategoria)
+}
+
+const crearCategoria = (nombre) => {
+	return {Id: crypto.randomUUID(), Nombre: nombre}
+}
+
+const eliminarCategoria = (idCategoria, categorias) => {
+	return categorias.filter((categoria) => categoria.Id !== idCategoria);
+}
+
+const reemplazarCategoria = (nuevaCategoria, categorias) => {
+	const nuevasCategorias = categorias.filter((categoria) => categoria.Id !== nuevaCategoria.Id);
+	return [...nuevasCategorias, nuevaCategoria];
+}  

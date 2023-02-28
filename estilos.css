@@ -22,3 +22,48 @@ body{
 #nueva-operacion{
     width: 150px;
 }
+/*Estilos Nueva Operación*/
+.container-form{
+    width: 80vw;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+.submit{
+    margin-top: 10px;
+    width: 20vw;
+    align-self: flex-end;
+}
+
+
+.nueva-operacion-creada{
+    display:flex;
+    justify-content: space-evenly;
+}
+.width-350 {
+	max-width: 350px;
+}
+.width-500 {
+	width: 500px;
+}
+
+
+@media (max-width: 770px) {
+    .pagina-inicial{
+        display: block;
+    }
+}
+@media (max-width: 650px){
+    .box-central-cabecera{
+        display: flex;
+        flex-direction:column;
+    }
+    #nueva-operacion{
+        margin-top: 10px;
+    }
+}
+
+
+.hidden {
+	display: none
+}

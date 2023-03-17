@@ -1,0 +1,69 @@
+/*Estilos Parte principal*/
+html {
+	overflow-y: auto;
+}
+body{
+    background-color:whitesmoke;
+    height: 100vh;
+	overflow-y: auto;
+}
+.header-container{
+    display: flex;
+    justify-content: space-between;
+}
+.balance{
+    height: 30vh;
+}
+.box-central-cabecera{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+#nueva-operacion{
+    width: 150px;
+}
+/*Estilos Nueva Operación*/
+.container-form{
+    width: 80vw;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+.submit{
+    margin-top: 10px;
+    width: 20vw;
+    align-self: flex-end;
+}
+
+
+.nueva-operacion-creada{
+    display:flex;
+    justify-content: space-evenly;
+}
+.width-350 {
+	max-width: 350px;
+}
+.width-500 {
+	width: 500px;
+}
+
+
+@media (max-width: 770px) {
+    .pagina-inicial{
+        display: block;
+    }
+}
+@media (max-width: 650px){
+    .box-central-cabecera{
+        display: flex;
+        flex-direction:column;
+    }
+    #nueva-operacion{
+        margin-top: 10px;
+    }
+}
+
+
+.hidden {
+	display: none
+}

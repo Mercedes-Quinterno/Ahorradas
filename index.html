@@ -1,12 +1,370 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+  <link rel="stylesheet" href="estilos.css" />
+
+  <title>AhorrADAs</title>
 </head>
-<body>
-    
+
+<header>
+  <nav class="navbar is-spaced is-primary has-background-info">
+    <div class="navbar-brand">
+      <button class="navbar-item button is-info navegacion" data-seccion="balance">
+        <h1 class="title is-3 has-text-white">
+          <ion-icon name="wallet-outline"></ion-icon>AhorrADAs
+        </h1>
+      </button>
+      <div class="navbar-burger" data-target="navMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="navbar-menu navbar-end" id="navMenu">
+      <button class="navbar-item button is-info navegacion is-info" data-seccion="balance">
+        <ion-icon name="trending-up-outline"></ion-icon>
+        Balance
+      </button>
+      <button class="navbar-item button is-info navegacion" data-seccion="categorias">
+        <ion-icon name="clipboard-outline"></ion-icon>Categorías
+      </button>
+      <button class="navbar-item button is-info navegacion" data-seccion="reportes">
+        <ion-icon name="pie-chart-outline"></ion-icon></i>Reportes
+      </button>
+    </div>
+  </nav>
+</header>
+
+
+
+
+<main class="pagina-inicial">
+  <section id="seccion-balance" class="section">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-one-fifth is-offset-1">
+          <!--CAJA BALANCE-->
+          <div class="box">
+            <div class="columns">
+              <div class="column">
+                <h1 class="is-title is-size-3 has-text-weight-bold">Balance</h1>
+              </div>
+            </div>
+            <div class="columns is-mobile">
+              <div class="column is-size-5">Ganancias</div>
+              <div class="column has-text-right has-text-success resumen" data-name="ganancias">+$0</div>
+            </div>
+            <div class="columns is-mobile">
+              <div class="column is-size-5">Gastos</div>
+              <div class="column has-text-right has-text-danger resumen" data-name="gastos">-$0</div>
+            </div>
+            <div class="columns is-mobile">
+              <div class="column is-size-5">Total</div>
+              <div class="column has-text-right has-text-weight-bold resumen" data-name="balance">$0</div>
+            </div>
+          </div>
+          <!--CAJA FILTROS-->
+          <form class="box filtros">
+            <h1 class="title is-3">Filtros</h1>
+            <!--FORMULARIO "TODOS"-->
+            <div class="field">
+              <label class="label" for="tipo-select">Tipo</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select name="select-tipos" class="filtro" data-name="tipo">
+                    <option value="todos">Todos</option>
+                    <option value="ganancia">Ganancia</option>
+                    <option value="gasto">Gasto</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+
+            <!--FORMULARIO CATEGORÍA DE GASTOS-->
+
+            <label class="label">Categorías</label>
+            <div class="select is-fullwidth">
+              <select class="filtro" data-name="categoria">
+              </select>
+            </div>
+            <!--FORMULARIO FECHA DEL GASTO-->
+            <div class="field">
+              <label class="label">Desde</label>
+              <div class="control">
+                <input type="date" class="input filtro" data-name="fecha">
+              </div>
+            </div>
+
+
+
+            <!--FORMULARIO PARA ORDENAR-->
+            <div class="field">
+              <label class="label">Ordenar por</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select name="select-orden" class="filtro" data-name="orden">
+                    <option value="mas-reciente">Más reciente</option>
+                    <option value="menos-reciente">Menos reciente</option>
+                    <option value="mayor-monto">Mayor monto</option>
+                    <option value="menor-monto">Menor monto</option>
+                    <option value="a-z">A/Z</option>
+                    <option value="z-a">Z/A</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="column is-three-fifths">
+          <!--CAJA CENTRAL "OPERACIONES"-->
+          <div class="box">
+            <div class="columns is-mobile">
+              <div class="column is-size-5">
+                <h2 class="title is-4">Operaciones</h2>
+              </div>
+              <div class="column has-text-right">
+                <button class="button is-info navegacion" data-seccion="agregar-movimiento">
+                  +Nueva Operación
+                </button>
+              </div>
+            </div>
+            <div id="container-movimientos">
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="seccion-agregar-movimiento" class="section is-hidden">
+    <div class="container">
+      <div class="container-form box">
+        <h1 class="title is-3">Nueva operación</h1>
+
+        <form id="form-submit">
+
+          <div class="formularios">
+            <div class="field">
+              <label class="label" for="descripcion">Descripción</label>
+              <div class="control">
+                <input class="input form-input" type="text" data-name="titulo">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="monto">Monto</label>
+              <div class="control">
+                <input class="input form-input" type="number" placeholder="0" data-name="monto">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="tipo">Tipo</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select class="form-input" data-name="tipo">
+                    <option value="gasto">Gasto</option>
+                    <option value="ganancia">Ganancia</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="categoria">Categorías</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select class="categorias-select form-input" data-name="categoria">
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Fecha</label>
+              <div class="control">
+                <input type="date" class="input form-input" data-name="fecha">
+              </div>
+            </div>
+
+            <div class="field is-grouped">
+              <div class="control">
+                <button id="cancelar-agregar-movimiento" type="button" class="button is-light">Cancelar</button>
+              </div>
+              <div class="control">
+                <button id="agregar-movimiento" type="button" class="button is-info">Agregar</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="seccion-editar-movimiento" class="section is-hidden">
+    <div class="container">
+      <div class="container-form box">
+        <h1 class="title is-3">Nueva operación</h1>
+  
+        <form id="form-edit-movimiento">
+          <div class="formularios">
+            
+            <div class="field">
+              <label class="label" for="descripcion">Descripción</label>
+              <div class="control">
+                <input class="input form-input" type="text" data-name="titulo">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="monto">Monto</label>
+              <div class="control">
+                <input class="input form-input" type="number" placeholder="0" data-name="monto">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="tipo">Tipo</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select class="form-input" data-name="tipo">
+                    <option value="gasto">Gasto</option>
+                    <option value="ganancia">Ganancia</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="categoria">Categorías</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select class="categorias-select form-input" data-name="categoria">
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Fecha</label>
+              <div class="control">
+                <input type="date" class="input form-input" data-name="fecha">
+              </div>
+            </div>
+
+            <div class="field is-grouped">
+              <div class="control">
+                <button id="cancelar-editar-movimiento" type="button" class="button is-light">Cancelar</button>
+              </div>
+              <div class="control">
+                <button id="editar-movimiento" type="button" class="button is-success">Editar</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="seccion-categorias" class="section is-hidden">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-6 is-offset-3">
+          <div class="box">
+            <h1 class="title is-3">Categorías</h1>
+
+            <label class="label" for="nombre">Nombre</label>
+
+            <div class="field has-addons">
+              <div class="control  is-expanded">
+                <input id="crear-nombre-categoria" class="input" type="text">
+              </div>
+              <div class="control">
+                <a id="crear-categoria" class="button is-info">
+                  Agregar
+                </a>
+              </div>
+            </div>
+
+            <div id="lista-categorias" class="table-container">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th class="width-500">Nombre</th>
+                    <th><abbr title="Acc">Acciones</abbr></th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-categorias">
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="seccion-editar-categoria" class="section is-hidden">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-6 is-offset-3">
+          <div class="box">
+            <h1 class="title is-3">Editar Categoría</h1>
+
+            <label class="label" for="nombre">Nombre</label>
+
+            <div class="field has-addons">
+              <div class="control  is-expanded">
+                <input id="editar-nombre-categoria" class="input" type="text">
+              </div>
+              <div class="control">
+                <a id="editar-categoria" class="button is-info">
+                  Editar
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="seccion-reportes" class="section is-hidden">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-6 is-offset-3">
+          <div class="box">
+            <h1 class="title is-3">Reportes</h1>
+
+            <div class="container">
+              <h4>Resumen</h4>
+
+              <div id="container-reportes">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<script src="./datos.js"></script>
+<script src="./vista.js"></script>
 </body>
+
 </html>

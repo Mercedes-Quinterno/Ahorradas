@@ -654,3 +654,19 @@ window.onload = () => {
     filtro("fecha").addEventListener("change", filtrarMovimientos)
     filtro("orden").addEventListener("change", filtrarMovimientos)
 }
+
+/*Despliegue navegador*/
+
+
+const $navbarBurgers = Array.prototype.slice.call(
+    document.querySelectorAll(".navbar-burger"),
+    0
+    );
+    $navbarBurgers.forEach((el) => {
+        el.addEventListener("click", () => {
+            const target = el.dataset.target;
+            const $target = document.getElementById(target);
+            el.classList.toggle("is-active");
+            $target.classList.toggle("is-active");
+        });
+    });

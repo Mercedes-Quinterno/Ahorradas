@@ -74,7 +74,7 @@ const crearCategoria = (nombre) => {
 }
 
 const eliminarCategoria = (idCategoria, categorias) => {
-	return filtroPor(categorias, (categoria) => categoria.Id !== idCategoria);
+	return filtrarPor(categorias, (categoria) => categoria.Id !== idCategoria);
 }
 
 const reemplazarCategoria = (nuevaCategoria, categorias) => {
